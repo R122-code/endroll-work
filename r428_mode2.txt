@@ -1,0 +1,61 @@
+2900:       const json = JSON.stringify(STATE, __ER_storageReplacer);
+2901:       localStorage.setItem(STORAGE_KEY, json);
+2902:       // Minimal feedback (optional)
+2903:       try{
+2904:         const pill=document.getElementById('pill');
+2905:         if(pill){
+2906:           pill.textContent='保存: OK';
+2907:           clearTimeout(pill._t);
+2908:           pill._t=setTimeout(()=>{ try{ pill.textContent='LOCAL'; }catch(_e){} }, 700);
+2909:         }
+2910:       }catch(_e){}
+2911:       return true;
+2912:     }catch(_e){ return false; }
+2913:   }
+2914: 
+2915:   // s3_mode (自動/固定) change: update STATE only + persist fast
+2916:   const __m = document.getElementById('s3_mode');
+2917:   if(__m && !__m.__fastSwitchWired){
+2918:     __m.__fastSwitchWired = 1;
+2919:     __m.addEventListener('change', ()=>{
+2920:       try{
+2921:         const v = parseInt(__m.value||'0',10);
+2922:         const modeV = isFinite(v)?v:0;
+2923:         if(window.STATE && STATE.s3){
+2924:           STATE.s3.mode = modeV;
+2925:           STATE.s3.pickMode = modeV;
+2926:         }
+2927:         try{
+2928:           if(window.__S3 && typeof window.__S3.configure==='function'){
+2929:             window.__S3.configure({ mode: modeV });
+2930:           }
+2931:         }catch(_e){}
+2932:         __S3_fastPersistSwitch('mode');
+2933:       }catch(_e){}
+2934:     }, true);
+2935:   }
+2936: 
+2937:   // s3_preset (編集) change: update STATE.s3.presetEdit only + persist fast
+2938:   const __p = document.getElementById('s3_preset');
+2939:   if(__p && !__p.__fastSwitchWired){
+2940:     __p.__fastSwitchWired = 1;
+2941:     __p.addEventListener('change', ()=>{
+2942:       try{
+2943:         const pv = (__p.value==='hit' || __p.value==='miss') ? __p.value : 'normal';
+2944:         if(window.STATE && STATE.s3) STATE.s3.presetEdit = pv;
+2945:         __S3_fastPersistSwitch('presetEdit');
+2946:       }catch(_e){}
+2947:     }, true);
+2948:   }
+2949: }catch(_e){}
+2950: 
+2951:     // kill browser tooltips caused by stray title attributes (prevents code showing on wipe)
+2952:     const __killTitle = (el)=>{
+2953:       try{
+2954:         let n=0;
+2955:         while(el && n<6){
+2956:           if(el.getAttribute && el.hasAttribute && el.hasAttribute('title')) el.setAttribute('title','');
+2957:           if('title' in el) try{ el.title=''; }catch(_){}
+2958:           el = el.parentElement;
+2959:           n++;
+2960:         }
