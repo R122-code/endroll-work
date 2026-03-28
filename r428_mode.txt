@@ -1,0 +1,80 @@
+549: #tabS3 .s3ModeWrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+552: #tabS3 .s3PresetModeWrap .s3ModeWrap{flex:0 0 auto;}
+553: #tabS3 .s3PresetModeWrap .s3ModeWrap{gap:6px;}
+554: #tabS3 .s3PresetModeWrap .s3ModeSeg button{padding:7px 10px;border-radius:12px;}
+557: #tabS3 .s3ModeWrap select{display:none;}
+558: #tabS3 .s3ModeSeg{display:flex;gap:8px;flex-wrap:wrap;}
+559: #tabS3 .s3ModeSeg .segBtn{padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);color:#fff;cursor:pointer;font-weight:900;font-size:12px;opacity:.82;}
+560: #tabS3 .s3ModeSeg .segBtn.active{opacity:1;background:rgba(0,160,255,.18);border-color:rgba(0,160,255,.30);}
+912: <div class="s3ModeWrap">
+913: <select id="s3_mode">
+919: <div class="s3ModeSeg" id="s3_mode_seg" aria-label="抽選モードショートカット"></div>
+2869: if(t && t.id && String(t.id).startsWith('s3_') && String(t.id)!=='s3_preset' && String(t.id)!=='s3_mode' && String(t.id)!=='s3_enabled') scheduleS3Save();
+2873: if(t && t.id && String(t.id).startsWith('s3_') && String(t.id)!=='s3_preset' && String(t.id)!=='s3_mode' && String(t.id)!=='s3_enabled') flushS3Save();
+2877: if(t && t.id && String(t.id).startsWith('s3_') && String(t.id)!=='s3_preset' && String(t.id)!=='s3_mode' && String(t.id)!=='s3_enabled') flushS3Save();
+2915: // s3_mode (自動/固定) change: update STATE only + persist fast
+2916: const __m = document.getElementById('s3_mode');
+2925: STATE.s3.pickMode = modeV;
+3192: var mode = document.getElementById('s3_mode');
+3277: var sel = document.getElementById('s3_mode');
+3278: var seg = document.getElementById('s3_mode_seg');
+4389: // (r237) sync pick parameters from UI so fixed/auto never desync (autotest may call _pickMode directly)
+4392: const eMode = document.getElementById('s3_mode');
+4394: cfg.mode = _clamp(_int(parseInt(eMode.value||cfg.mode||S3_DEFAULT.mode,10), S3_DEFAULT.mode), 0, 3);
+4410: function _pickMode(withDetail=false){
+4412: let mode = _clamp(_int(cfg.mode, S3_DEFAULT.mode), 0, 3);
+4414: const em = document.getElementById('s3_mode');
+4446: const eMode = document.getElementById('s3_mode');
+4447: let mode = _clamp(_int(cfg.mode, S3_DEFAULT.mode), 0, 3);
+4454: cfg.mode = mode;
+4455: cfg.pickMode = mode;
+4514: let __uiModeVal = _clamp(_int(cfg.mode, S3_DEFAULT.mode), 0, 3);
+4516: const __eMode = document.getElementById('s3_mode');
+4529: : _pickMode(true);
+5335: `mode=${_int(cfg.mode,0)}, hitR=${fmt(cfg.hitRate)}, missR=${fmt(cfg.missRate)}, `+
+5486: const eMode = document.getElementById('s3_mode');
+6205: const __initMode = _clamp(_int(cfg.mode, S3_DEFAULT.mode), 0, 3);
+6207: try{ cfg.mode = __initMode; cfg.pickMode = __initMode; }catch(_e){}
+6208: try{ if(window.STATE && STATE.s3){ STATE.s3.mode = __initMode; STATE.s3.pickMode = __initMode; } }catch(_e){}
+6434: const __modeEl = document.getElementById('s3_mode');
+6435: const __modeKeep = __modeEl ? String(__modeEl.value || (cfg.mode ?? S3_DEFAULT.mode)) : String(cfg.mode ?? S3_DEFAULT.mode);
+6452: const __modeN = Math.max(0, Math.min(3, _int(parseInt(__modeKeep,10), cfg.mode ?? S3_DEFAULT.mode)));
+6454: cfg.mode = __modeN;
+6455: cfg.pickMode = __modeN;
+6458: STATE.s3.pickMode = __modeN;
+6680: mode: (cfg.mode ?? S3_DEFAULT.mode),
+6734: const mode = eMode ? Math.max(0, Math.min(3, _int(parseInt(eMode.value||S3_DEFAULT.mode,10), S3_DEFAULT.mode))) : (cfg.mode ?? S3_DEFAULT.mode);
+6736: cfg.mode = mode;
+6737: cfg.pickMode = mode;
+6747: STATE.s3.pickMode = mode;
+7632: const mEl = document.getElementById('s3_mode');
+7633: const m = mEl ? Number(mEl.value) : (st.pickMode ?? st.mode ?? 0);
+7635: st.pickMode = m;
+7804: try{ setVal('s3_mode', 1); }catch(_e){}
+7808: try{ setVal('s3_mode', 1); }catch(_e){}
+7817: const pickMode = d && d.pick && d.pick.mode;
+7820: const uiModeEl = document.getElementById('s3_mode');
+7824: push(`mix.fixed[#${i}] uiMode=${uiMode} uiEdit=${uiPe} pickMode=${pickMode} forced=${forced} cands=${JSON.stringify(cands)} chosen=${chosen}`);
+7832: try{ setVal('s3_mode', 0); }catch(_e){}
+7844: const pickMode = d && d.pick && d.pick.mode;
+7847: const uiModeEl = document.getElementById('s3_mode');
+7849: push(`mix.auto[#${i}] uiMode=${uiMode} pickMode=${pickMode} forced=${forced} cands=${JSON.stringify(cands)} chosen=${chosen}`);
+7873: const mEl = document.getElementById("s3_mode");
+7915: const mEl = document.getElementById("s3_mode");
+7951: try{ setVal('s3_mode', 1); }catch(_e){}
+7958: const pickMode = info && info.mode;
+7961: const uiModeEl = document.getElementById('s3_mode');
+7965: push(`mix.fixed[#${i}] uiMode=${uiMode} uiEdit=${uiPe} pickMode=${pickMode} forced=${forced} cands=${JSON.stringify(cands)} chosen=${chosen}`);
+7974: try{ setVal('s3_mode', 0); }catch(_e){}
+7984: const pickMode = info && info.mode;
+7987: const uiModeEl = document.getElementById('s3_mode');
+7989: push(`mix.auto[#${i}] uiMode=${uiMode} pickMode=${pickMode} forced=${forced} cands=${JSON.stringify(cands)} chosen=${chosen}`);
+8060: const ok = !!(window.__S3_UI_READY && document.getElementById('s3_mode') && document.getElementById('s3_preset') && (typeof saveSettings==='function'));
+8524: const pickMode = Number(s3.pickMode);
+8529: const fixedNormalish = (mode===1 || pickMode===1 || pe==='normal');
+8540: if(hasSpawnableNormal(s3) || Number(s3.mode)===0 || Number(s3.pickMode)===0) return cand;
+8556: s3.pickMode = 0;
+8679: pickMode: num(s3.pickMode, num(s3.mode,0)),
+8763: pickMode: num(s3.pickMode, num(s3.mode, 0)),
+8794: setVal('s3_mode', next.mode);
+8846: pickMode: num(s3.pickMode, num(s3.mode,0)),
