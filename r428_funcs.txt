@@ -1,0 +1,27 @@
+// saveSettings
+function saveSettings(){
+  // (r325/r330) ガード：S3発火直後の短い区間は保存しない。
+  // - S3 UIの保存（commit）が必要な場合は、区間終了後に保存を延期（発火直後の誤保存を避けつつ、記憶は担保）。
+  // - それ以外は保存をスキップ。
+  try{
+    const inCd = (typeof window.__S3_isInSaveCooldown==='function') && window.__S3_isInSaveCooldown();
+    const force = !!window.__S3_FORCE_SAVE;
+    if(inCd && !force){
+      const wantsS3Commit = !!window.__S3_COMMIT_ON_NEXT_SAVE;
+      const SAVE_COOLDOWN_MS = 8000;
+      if(wantsS3Commit){
+        const t0 = (window.__S3_LAST_FIRE_TS || window.__S3_LAST_FIRE_MS || 0);
+        const dt = Date.now() - t0;
+        const waitMs = Math.max(0, (SAVE_COOLDOWN_MS - dt) + 50);
+        try{ clearTimeout(window.__S3_POST_FIRE_SAVE_T); }
+
+// loadSettings
+function loadSettings(){
+  try{
+    // 自動整理：破損退避キーで容量が詰まるのを防ぐ
+    const __purge = __lsCleanupEndroll();
+    // ?clean=1 で保存を無視して初期値起動（切り分け用）
+    try{
+      const qs=new URLSearchParams(location.search||'');
+      if(qs.get('clean')==='1') return;
+    }
