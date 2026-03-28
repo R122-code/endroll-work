@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="ja">
 <head>
@@ -4434,3 +4434,4 @@ function _pickMode(withDetail=false){
     const normalR = rates.normal;
     const rr = Math.random();
     let chosen = 'normal';
+    if(rr < missR) chosen = 'miss';

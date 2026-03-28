@@ -1,4 +1,3 @@
-﻿    if(rr < missR) chosen = 'miss';
     else if(rr < missR + hitR) chosen = 'hit';
     const d = {mode:0, forced:false, r:rr, hitR, missR, normalR, chosen, candidates:['miss','hit','normal'], rate:true, total:(normalR+hitR+missR)};
     return withDetail ? d : d.chosen;
@@ -4435,3 +4434,4 @@ if(!autoOk) mixFail++;
 
 </body>
 </html>
+
