@@ -1,0 +1,81 @@
+8780:         if(window.STATE && typeof window.STATE === 'object'){
+8781:           window.STATE.s3 = Object.assign({}, window.STATE.s3 || {}, next);
+8782:         }
+8783:       }catch(_e){}
+8784:       try{
+8785:         const pe = next.presetEdit;
+8786:         const p = ensureObj(next.presets[pe]);
+8787:         const setVal = (id, v) => {
+8788:           const el = document.getElementById(id);
+8789:           if(!el || v == null) return;
+8790:           el.value = String(v);
+8791:           try{ el.dispatchEvent(new Event('input', {bubbles:true})); }catch(_e){}
+8792:           try{ el.dispatchEvent(new Event('change', {bubbles:true})); }catch(_e){}
+8793:         };
+8794:         setVal('s3_mode', next.mode);
+8795:         setVal('s3_preset', pe);
+8796:         setVal('s3_normalW', next.normalRate);
+8797:         setVal('s3_hitRate', next.hitRate);
+8798:         setVal('s3_missRate', next.missRate);
+8799:         ['paperN','tapeN','tapeW','tapeAmp','tapeSpd','tapeTipPow','spreadDeg','emitSec','speedMul','gravMul','pseudoZ',
+8800:          'genkoProb','genkoN','genkoLife','genkoSize','genkoSwirl','genkoRad','genkoRise','genkoShootV0','genkoVcap','genkoTrail','genkoHueV','genkoShapeV','genkoGlow','genkoMax',
+8801:          'misfireEnable','misfireStyle','misfireCount','misfireLife','misfireSize','misfireSpread','misfireRise','misfireV0','misfireLux','misfireFlashEnable','misfireFlashPow','misfireFlashLife','misfireSparkEnable','misfireSparkCount','misfireSparkV','misfireSparkSpread','misfireSparkLife','misfireSparkSize','misfireSparkAlpha','misfireSparkG','misfireSparkDrag'
+8802:         ].forEach((k)=>setVal('s3_'+k, p[k]));
+8803:       }catch(_e){}
+8804:       try{
+8805:         if(typeof window.syncS3ControlsFromState === 'function') window.syncS3ControlsFromState();
+8806:       }catch(_e){}
+8807:       try{
+8808:         if(typeof window.__S3_updateRowVisibility === 'function') window.__S3_updateRowVisibility();
+8809:       }catch(_e){}
+8810:     }catch(_e){}
+8811:   }
+8812: 
+8813:   let restored = false;
+8814:   function restoreNow(){
+8815:     if(restored) return;
+8816:     restored = true;
+8817:     try{
+8818:       const bakRaw = jgetRaw(AT_BAK_KEY);
+8819:       if(!bakRaw) return;
+8820:       jsetRaw(ROOT_KEY, bakRaw);
+8821:       const bak = jget(AT_BAK_KEY);
+8822:       if(bak && typeof bak === 'object') applyRootToRuntime(bak);
+8823:     }catch(_e){}
+8824:     try{ localStorage.removeItem(AT_BAK_KEY); }catch(_e){}
+8825:   }
+8826: 
+8827:   // Restore on report download, on page leave, and as a safety timer even if the report flow fails.
+8828:   try{
+8829:     const origDlText = window.dlText;
+8830:     if(typeof origDlText === 'function' && !origDlText.__r427Wrapped){
+8831:       const wrapped = function(name, txt){
+8832:         try{
+8833:           if(typeof name === 'string' && /^s3_report_/i.test(name)){
+8834:             restoreNow();
+8835:             try{
+8836:               const cur = jget(ROOT_KEY);
+8837:               const s3 = ensureObj(cur && cur.s3);
+8838:               const n = ensureObj(ensureObj(s3.presets).normal);
+8839:               const h = ensureObj(ensureObj(s3.presets).hit);
+8840:               const m = ensureObj(ensureObj(s3.presets).miss);
+8841:               const extra = [
+8842:                 '',
+8843:                 '--- restore snapshot (post-autotest)',
+8844:                 JSON.stringify({
+8845:                   mode: num(s3.mode, 0),
+8846:                   pickMode: num(s3.pickMode, num(s3.mode,0)),
+8847:                   presetEdit: String(s3.presetEdit || 'normal'),
+8848:                   hitRate: num(s3.hitRate, 0.12),
+8849:                   missRate: num(s3.missRate, 0.08),
+8850:                   normal: { burstN:num(n.burstN,0), paperN:num(n.paperN,0), tapeN:num(n.tapeN,0) },
+8851:                   hit: { genkoN:num(h.genkoN,0), genkoProb:num(h.genkoProb,0) },
+8852:                   miss: { misfireCount:num(m.misfireCount,0) }
+8853:                 }, null, 2)
+8854:               ].join('\n');
+8855:               txt = String(txt||'') + extra;
+8856:             }catch(_e){}
+8857:           }
+8858:         }catch(_e){}
+8859:         const ret = origDlText.call(this, name, txt);
+8860:         return ret;

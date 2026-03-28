@@ -1,0 +1,131 @@
+3190:       if(preset) preset.addEventListener('change', function(){ setTimeout(syncAll, 40); });
+3191: 
+3192:       var mode = document.getElementById('s3_mode');
+3193:       if(mode) mode.addEventListener('change', function(){ setTimeout(syncAll, 40); });
+3194: 
+3195:       
+3196:     }catch(_e){}
+3197:   });
+3198: })();
+3199: 
+3200: 
+3201: /* S3 QUICK DOCK (layout-only): mode segments, header toggle, diag dock, jump buttons. */
+3202: (function(){
+3203:   function __ready(fn){
+3204:     try{
+3205:       if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+3206:       else fn();
+3207:     }catch(_e){}
+3208:   }
+3209:   __ready(function(){
+3210:     try{
+3211:       var tab = document.getElementById('tabS3');
+3212:       if(!tab) return;
+3213: 
+3214:       // ---- header toggle -> real (hidden) s3_enabled ----
+3215:       var head = document.getElementById('s3_enabled_head');
+3216:       var real = document.getElementById('s3_enabled');
+3217:       // init from persisted STATE (do not write back)
+3218:       try{
+3219:         var stEn = (window.STATE && window.STATE.s3 && typeof window.STATE.s3.enabled==='boolean') ? window.STATE.s3.enabled : null;
+3220:         if(real && stEn!==null) real.checked = !!stEn;
+3221:         if(head && stEn!==null) head.checked = !!stEn;
+3222:         try{ if(window.__S3 && typeof window.__S3.configure==='function' && stEn!==null) window.__S3.configure({enabled:!!stEn}); }catch(_e){}
+3223:       }catch(_e){}
+3224:       function syncHeadFromReal(){
+3225:         try{ if(head && real) head.checked = !!real.checked; }catch(_e){}
+3226:       }
+3227:       function commitHeadToReal(){
+3228:         try{
+3229:           if(!head || !real) return;
+3230:           real.checked = !!head.checked;
+3231: 
+3232:           // r370: keep STATE/localStorage in sync to avoid "enabled gets forced back"
+3233:           try{ if(window.STATE && window.STATE.s3) window.STATE.s3.enabled = !!real.checked; }catch(_e){}
+3234:           try{
+3235:             var ROOT_KEY = 'endroll_v5_6_21_settings';
+3236:             var o = {};
+3237:             try{ o = JSON.parse(localStorage.getItem(ROOT_KEY) || '{}') || {}; }catch(_e){ o = {}; }
+3238:             if(!o.s3) o.s3 = {};
+3239:             o.s3.enabled = !!real.checked;
+3240:             try{ localStorage.setItem(ROOT_KEY, JSON.stringify(o)); }catch(_e){}
+3241:           }catch(_e){}
+3242: 
+3243:           // apply immediately to running S3 engine (UIだけで止まらない問題の対処)
+3244:           try{
+3245:             if(window.__S3 && typeof window.__S3.configure==='function'){
+3246:               window.__S3.configure({ enabled: !!real.checked });
+3247:             }
+3248:           }catch(_e){}
+3249: 
+3250:           // force-save even if save cooldown is active (enabled is a safety switch)
+3251:           try{ window.__S3_FORCE_SAVE = true; }catch(_e){}
+3252:           try{
+3253:             // trigger existing autosave/bind logic
+3254:             real.dispatchEvent(new Event('change', {bubbles:true}));
+3255: 
+3256:             // belt-and-suspenders: call save once (some envs drop change when hidden)
+3257:             setTimeout(function(){
+3258:               try{ window.__S3_FORCE_SAVE = true; }catch(_e){}
+3259:               try{ if(typeof saveSettings==='function') saveSettings(); }catch(_e){}
+3260:               try{ window.__S3_FORCE_SAVE = false; }catch(_e){}
+3261:             }, 0);
+3262:           }finally{
+3263:             try{ window.__S3_FORCE_SAVE = false; }catch(_e){}
+3264:           }
+3265:         }catch(_e){}
+3266:       }
+3267:       if(head){
+3268:         head.addEventListener('change', commitHeadToReal);
+3269:       }
+3270:       if(real){
+3271:         real.addEventListener('change', syncHeadFromReal);
+3272:         syncHeadFromReal();
+3273:         try{ setTimeout(syncHeadFromReal, 250); setTimeout(syncHeadFromReal, 900); }catch(_e){}
+3274:       }
+3275: 
+3276:       // ---- mode segmented buttons (keeps original select for binding) ----
+3277:       var sel = document.getElementById('s3_mode');
+3278:       var seg = document.getElementById('s3_mode_seg');
+3279:       if(sel && seg && !seg.__built){
+3280:         seg.__built = 1;
+3281:         var items = [
+3282:           {v:'0', t:'自動'},
+3283:           {v:'1', t:'通常'},
+3284:           {v:'2', t:'当たり'},
+3285:           {v:'3', t:'ハズレ'}
+3286:         ];
+3287:         function setActive(){
+3288:           try{
+3289:             var v = String(sel.value);
+3290:             var bs = seg.querySelectorAll('.segBtn');
+3291:             for(var i=0;i<bs.length;i++){
+3292:               var b = bs[i];
+3293:               b.classList.toggle('active', String(b.dataset.v)===v);
+3294:             }
+3295:           }catch(_e){}
+3296:         }
+3297:         for(var i=0;i<items.length;i++){
+3298:           var it = items[i];
+3299:           var b = document.createElement('button');
+3300:           b.type='button';
+3301:           b.className='segBtn';
+3302:           b.textContent = it.t;
+3303:           b.dataset.v = it.v;
+3304:           b.addEventListener('click', function(){
+3305:             try{
+3306:               sel.value = this.dataset.v;
+3307:               sel.dispatchEvent(new Event('change', {bubbles:true}));
+3308:               setActive();
+3309:             }catch(_e){}
+3310:           });
+3311:           seg.appendChild(b);
+3312:         }
+3313:         sel.addEventListener('change', setActive);
+3314:         setActive();
+3315:       }
+3316: 
+3317:       // ---- move diag section to top-right dock ----
+3318:       var dock = null; // r370: disable legacy move-to-dock (use custom dock UI)
+3319:       // var dock = document.getElementById('s3DiagDock');
+3320:       var h = document.getElementById('s3ui_diag');
